@@ -1,0 +1,40 @@
+package com.example.lab_week_08.worker
+
+import android.content.Context
+import android.content.Intent
+import androidx.work.Data
+import androidx.work.Worker
+import androidx.work.WorkerParameters
+import com.example.lab_week_08.SecondNotificationService
+
+class ThirdWorker(
+    context: Context,
+    workerParams: WorkerParameters
+) : Worker(context, workerParams) {
+
+    override fun doWork(): Result {
+        val id = inputData.getString(INPUT_DATA_ID)
+
+        // Simulate some work
+        Thread.sleep(3000L)
+
+        // Start SecondNotificationService after work is complete
+        if (id != null) {
+            val intent = Intent(applicationContext, SecondNotificationService::class.java).apply {
+                putExtra(SecondNotificationService.EXTRA_ID, id)
+            }
+            applicationContext.startForegroundService(intent)
+        }
+
+        val outputData = Data.Builder()
+            .putString(OUTPUT_DATA_ID, id)
+            .build()
+
+        return Result.success(outputData)
+    }
+
+    companion object {
+        const val INPUT_DATA_ID = "inId"
+        const val OUTPUT_DATA_ID = "outId"
+    }
+}
